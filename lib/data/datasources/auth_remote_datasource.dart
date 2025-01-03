@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:dartz/dartz.dart';
 import 'package:komdigi_logbooks_admins/core/constants/variables.dart';
@@ -7,14 +9,21 @@ import 'package:komdigi_logbooks_admins/data/model/responses/auth_response_model
 class AuthRemoteDatasource {
   Future<Either<String, AuthResponseModel>> login(
       String email, String password) async {
-    final url = Uri.parse('${Variables.baseUrl}/api/login');
-    final response = await http.post(url, headers: {
+    final headers = {
       'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    }, body: {
-      'email': email,
-      'password': password,
-    });
+      'Content-Type': 'application/json'
+    };
+    final url = Uri.parse('${Variables.baseUrl}/api/login');
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(
+        {
+          'email': email,
+          'password': password,
+        },
+      ),
+    );
     if (response.statusCode == 200) {
       return Right(AuthResponseModel.fromJson(response.body));
     } else {
