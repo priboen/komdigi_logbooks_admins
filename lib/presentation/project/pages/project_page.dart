@@ -17,6 +17,7 @@ class _ProjectPageState extends State<ProjectPage> {
       ),
       body: const SingleChildScrollView(),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'add_project',
         shape: const CircleBorder(),
         foregroundColor: AppColors.white,
         backgroundColor: AppColors.primary,
