@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komdigi_logbooks_admins/core/core.dart';
+import 'package:komdigi_logbooks_admins/core/extensions/extensions.dart';
+import 'package:komdigi_logbooks_admins/data/datasources/auth_local_datasources.dart';
+import 'package:komdigi_logbooks_admins/data/model/responses/auth_response_model.dart';
+import 'package:komdigi_logbooks_admins/presentation/pembimbing/bloc/get_pembimbing/get_pembimbing_bloc.dart';
+import 'package:komdigi_logbooks_admins/presentation/pembimbing/pages/pembimbing_pages.dart';
+import 'package:komdigi_logbooks_admins/presentation/project/pages/project_page.dart';
 import 'package:komdigi_logbooks_admins/presentation/widgets/menu_button.dart';
 
 class HomePage extends StatefulWidget {
@@ -10,8 +17,42 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  User? user;
+  bool isLoading = false;
+
+  Future<void> _loadUserData() async {
+    final authData = await AuthLocalDatasource().getAuthData();
+    if (authData != null) {
+      setState(() {
+        user = authData.user;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        user = User(name: 'Guest', email: 'guest@example.com');
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    _loadUserData();
+    context
+        .read<GetPembimbingBloc>()
+        .add(const GetPembimbingEvent.getPembimbing());
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -64,10 +105,10 @@ class _HomePageState extends State<HomePage> {
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(20.0),
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Profile Anda',
                       style: TextStyle(
                         color: AppColors.gray3,
@@ -75,8 +116,8 @@ class _HomePageState extends State<HomePage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SpaceHeight(16.0),
-                    Text(
+                    const SpaceHeight(16.0),
+                    const Text(
                       'Nama Admin',
                       style: TextStyle(
                         color: AppColors.gray2,
@@ -84,28 +125,28 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     Text(
-                      'Ahmad Yanto',
-                      style: TextStyle(
+                      user?.name ?? 'Loading...',
+                      style: const TextStyle(
                         color: AppColors.gray3,
                         fontSize: 16.0,
                       ),
                     ),
-                    SpaceHeight(16.0),
-                    Text(
-                      'Lokasi Admin',
+                    const SpaceHeight(16.0),
+                    const Text(
+                      'Email Admin',
                       style: TextStyle(
                         color: AppColors.gray2,
                         fontSize: 16.0,
                       ),
                     ),
                     Text(
-                      'Yogyakarta',
-                      style: TextStyle(
+                      user?.email ?? 'Loading...',
+                      style: const TextStyle(
                         color: AppColors.gray3,
                         fontSize: 16.0,
                       ),
                     ),
-                    SpaceHeight(16.0),
+                    const SpaceHeight(16.0),
                     const Text(
                       'Jumlah Pembimbing',
                       style: TextStyle(
@@ -113,12 +154,47 @@ class _HomePageState extends State<HomePage> {
                         fontSize: 16.0,
                       ),
                     ),
-                    Text(
-                      '2',
-                      style: TextStyle(
-                        color: AppColors.gray3,
-                        fontSize: 16.0,
-                      ),
+                    BlocBuilder<GetPembimbingBloc, GetPembimbingState>(
+                      builder: (context, state) {
+                        return state.maybeWhen(
+                          orElse: () {
+                            return const Text(
+                              'Loading...',
+                              style: TextStyle(
+                                color: AppColors.gray3,
+                                fontSize: 16.0,
+                              ),
+                            );
+                          },
+                          loading: () {
+                            return const Text(
+                              'Loading...',
+                              style: TextStyle(
+                                color: AppColors.gray3,
+                                fontSize: 16.0,
+                              ),
+                            );
+                          },
+                          error: (error) {
+                            return const Text(
+                              'Error',
+                              style: TextStyle(
+                                color: AppColors.gray3,
+                                fontSize: 16.0,
+                              ),
+                            );
+                          },
+                          success: (pembimbing) {
+                            return Text(
+                              pembimbing.length.toString(),
+                              style: const TextStyle(
+                                color: AppColors.gray3,
+                                fontSize: 16.0,
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -141,13 +217,17 @@ class _HomePageState extends State<HomePage> {
                       color: AppColors.homeGreen,
                       label: 'Daftar Pembimbing',
                       iconPath: Assets.icons.menu.transaksiHariIni.path,
-                      onPressed: () {},
+                      onPressed: () {
+                        context.push(const PembimbingPages());
+                      },
                     ),
                     MenuButton(
                       color: AppColors.homeYellow,
                       label: 'Daftar Project',
                       iconPath: Assets.icons.menu.jumlahPesanan.path,
-                      onPressed: () {},
+                      onPressed: () {
+                        context.push(const ProjectPage());
+                      },
                     )
                   ],
                 ),
