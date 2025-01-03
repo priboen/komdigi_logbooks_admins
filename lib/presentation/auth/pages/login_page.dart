@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komdigi_logbooks_admins/core/core.dart';
+import 'package:komdigi_logbooks_admins/core/extensions/build_context_ext.dart';
+import 'package:komdigi_logbooks_admins/data/datasources/auth_local_datasources.dart';
+import 'package:komdigi_logbooks_admins/presentation/auth/bloc/login_bloc/login_bloc.dart';
 import 'package:komdigi_logbooks_admins/presentation/main_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,8 +19,17 @@ class _LoginPageState extends State<LoginPage> {
   bool isShowPassword = false;
   bool isShowConfirmPassword = false;
 
+  Future<void> getUser() async {
+    final authData = await AuthLocalDatasource().getAuthData();
+    print(authData);
+    if(authData != null) {
+      context.pushReplacement(const MainPage());
+    }
+  }
+
   @override
   void initState() {
+    getUser();
     emailController = TextEditingController();
     passwordController = TextEditingController();
     super.initState();
@@ -107,19 +120,73 @@ class _LoginPageState extends State<LoginPage> {
                         CustomTextField(
                           controller: passwordController,
                           label: 'Password',
-                          obscureText: true,
+                          obscureText: !isShowPassword,
                           prefixIcon: const Icon(
                             Icons.key,
                             color: AppColors.primary,
                           ),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isShowPassword = !isShowPassword;
+                              });
+                            },
+                            icon: Icon(
+                              isShowPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: AppColors.primary,
+                            ),
+                          ),
                         ),
                         const SpaceHeight(48.0),
-                        Button.filled(onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const MainPage()),
-                        );
-                        }, label: 'Sign In'),
+                        BlocConsumer<LoginBloc, LoginState>(
+                          listener: (context, state) {
+                            state.maybeWhen(
+                                orElse: () {},
+                                success: (data) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Login Success'),
+                                      backgroundColor: AppColors.gray1,
+                                    ),
+                                  );
+                                  AuthLocalDatasource().saveAuthData(data);
+                                  print(data);
+                                  context.pushReplacement(const MainPage());
+                                },
+                                error: (error) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(error),
+                                      backgroundColor: AppColors.red,
+                                    ),
+                                  );
+                                });
+                          },
+                          builder: (context, state) {
+                            return state.maybeWhen(
+                              orElse: () {
+                                return Button.filled(
+                                  onPressed: () {
+                                    context.read<LoginBloc>().add(
+                                          LoginEvent.login(
+                                            email: emailController.text,
+                                            password: passwordController.text,
+                                          ),
+                                        );
+                                  },
+                                  label: 'Sign In',
+                                );
+                              },
+                              loading: () {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
