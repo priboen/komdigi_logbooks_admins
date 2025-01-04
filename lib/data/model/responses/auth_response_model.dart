@@ -11,6 +11,17 @@ class AuthResponseModel {
         this.token,
     });
 
+    AuthResponseModel copyWith({
+        String? message,
+        User? user,
+        String? token,
+    }) => 
+        AuthResponseModel(
+            message: message ?? this.message,
+            user: user ?? this.user,
+            token: token ?? this.token,
+        );
+
     factory AuthResponseModel.fromJson(String str) => AuthResponseModel.fromMap(json.decode(str));
 
     String toJson() => json.encode(toMap());
