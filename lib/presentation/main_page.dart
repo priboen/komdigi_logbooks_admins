@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:komdigi_logbooks_admins/core/core.dart';
 import 'package:komdigi_logbooks_admins/presentation/home/pages/home_page.dart';
 import 'package:komdigi_logbooks_admins/presentation/pembimbing/pages/pembimbing_pages.dart';
+import 'package:komdigi_logbooks_admins/presentation/profile/pages/profile_page.dart';
 import 'package:komdigi_logbooks_admins/presentation/project/pages/project_page.dart';
 
 class MainPage extends StatefulWidget {
@@ -17,9 +18,7 @@ class _MainPageState extends State<MainPage> {
     const HomePage(),
     const ProjectPage(),
     const PembimbingPages(),
-    const Center(
-      child: Text('Ini Halaman Profile'),
-    ),
+    const ProfilePage(),
   ];
   @override
   Widget build(BuildContext context) {
