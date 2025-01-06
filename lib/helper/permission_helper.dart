@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:komdigi_logbooks_admins/core/core.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PermissionHelper {
@@ -20,6 +21,7 @@ class PermissionHelper {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Akses kamera atau penyimpanan ditolak.'),
+        backgroundColor: AppColors.red,
       ),
     );
   } else if (cameraStatus.isPermanentlyDenied || storageStatus.isPermanentlyDenied) {
