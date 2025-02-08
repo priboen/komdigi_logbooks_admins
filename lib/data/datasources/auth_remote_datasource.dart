@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:komdigi_logbooks_admins/core/constants/variables.dart';
 import 'package:komdigi_logbooks_admins/data/datasources/auth_local_datasources.dart';
+import 'package:komdigi_logbooks_admins/data/model/responses/admin_register_response_model.dart';
 import 'package:komdigi_logbooks_admins/data/model/responses/auth_response_model.dart';
 import 'package:komdigi_logbooks_admins/data/model/responses/update_response_model.dart';
 
@@ -46,6 +47,36 @@ class AuthRemoteDatasource {
       return const Right('Logout success');
     } else {
       return const Left('Failed to logout');
+    }
+  }
+
+  Future<Either<String, AdminRegisterResponseModel>> registerAdmin(
+    String name,
+    String email,
+    String password,
+  ) async {
+    final authData = await AuthLocalDatasource().getAuthData();
+    final headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${authData?.token}',
+    };
+    final url = Uri.parse('${Variables.baseUrl}/api/admin/register');
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(
+        {
+          'name': name,
+          'email': email,
+          'password': password,
+        },
+      ),
+    );
+    if (response.statusCode == 200) {
+      return Right(AdminRegisterResponseModel.fromJson(response.body));
+    } else {
+      return Left(jsonDecode(response.body)['message']);
     }
   }
 

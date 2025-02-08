@@ -5,6 +5,7 @@ import 'package:komdigi_logbooks_admins/core/core.dart';
 import 'package:komdigi_logbooks_admins/core/extensions/extensions.dart';
 import 'package:komdigi_logbooks_admins/data/datasources/auth_local_datasources.dart';
 import 'package:komdigi_logbooks_admins/data/model/responses/auth_response_model.dart';
+import 'package:komdigi_logbooks_admins/presentation/admin/pages/add_admin_page.dart';
 import 'package:komdigi_logbooks_admins/presentation/auth/bloc/logout_bloc/logout_bloc.dart';
 import 'package:komdigi_logbooks_admins/presentation/auth/pages/login_page.dart';
 import 'package:komdigi_logbooks_admins/presentation/profile/pages/update_profile_page.dart';
@@ -132,6 +133,17 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       const SpaceHeight(16),
+                      MenuItem(
+                        title: 'Tambah Admin',
+                        icon: Icons.arrow_forward_ios,
+                        onPressed: () {
+                          context.push(const AddAdminPage());
+                        },
+                      ),
+                      Divider(
+                        color: Colors.grey.shade300,
+                        thickness: 1,
+                      ),
                       MenuItem(
                         title: 'Ubah Profile',
                         icon: Icons.arrow_forward_ios,

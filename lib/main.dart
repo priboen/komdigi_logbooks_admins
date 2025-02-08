@@ -4,6 +4,7 @@ import 'package:komdigi_logbooks_admins/core/constants/constants.dart';
 import 'package:komdigi_logbooks_admins/data/datasources/auth_remote_datasource.dart';
 import 'package:komdigi_logbooks_admins/data/datasources/pembimbing_remote_datasources.dart';
 import 'package:komdigi_logbooks_admins/data/datasources/project_remote_datasources.dart';
+import 'package:komdigi_logbooks_admins/presentation/admin/bloc/register_admin/register_admin_bloc.dart';
 import 'package:komdigi_logbooks_admins/presentation/auth/bloc/login_bloc/login_bloc.dart';
 import 'package:komdigi_logbooks_admins/presentation/auth/bloc/logout_bloc/logout_bloc.dart';
 import 'package:komdigi_logbooks_admins/presentation/auth/pages/login_page.dart';
@@ -68,6 +69,11 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => UpdateProfileBloc(
+            AuthRemoteDatasource(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => RegisterAdminBloc(
             AuthRemoteDatasource(),
           ),
         ),
